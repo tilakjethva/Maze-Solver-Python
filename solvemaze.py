@@ -46,12 +46,16 @@ class AmazeSolver:
                 for j, pos in enumerate(line.split()):
                     if pos == 's':  # start position
                         self.start = (i, j)
-                        self.maze[i].append(0)
+                        self.maze[i].append(pos)
                     elif pos == 'e':  # end position
                         self.end = (i, j)
-                        self.maze[i].append(0)
-                    else:
+                        self.maze[i].append(pos)
+                    elif pos == '0' or pos == '1': # path and wall
                         self.maze[i].append(int(pos))
+                    else:
+                        self.maze[i].append(pos)
+
+        self.keys = {}
 
         print(self.maze)
         print(self.start)
@@ -73,8 +77,6 @@ class AmazeSolver:
 
         # Loop until you find the end
         while not open_queue.empty():
-
-            #open_queue.sort()
 
             # Pop current off open list, add to closed list
             current_node = open_queue.get()
@@ -100,9 +102,6 @@ class AmazeSolver:
                     continue
 
                 # Child is on the closed list
-                # for closed_child in closed_list:
-                #     if child == closed_child:
-                #         continue
                 if child in closed_list:
                     continue
 
@@ -122,19 +121,25 @@ class AmazeSolver:
 
     def get_child(self, current_node, next_position):
         # Get node position
-        (x_position, y_position) = (
-        current_node.position[0] + next_position[0], current_node.position[1] + next_position[1])
+        (row, col) = (current_node.position[0] + next_position[0], current_node.position[1] + next_position[1])
 
-        # Make sure within range
-        if x_position > (len(self.maze) - 1) or x_position < 0 or y_position > (
-                len(self.maze[len(self.maze) - 1]) - 1) or y_position < 0:
+        # Make sure its within range
+        if row > (len(self.maze) - 1) or row < 0 or col > (
+                len(self.maze[len(self.maze) - 1]) - 1) or col < 0:
             return None
 
-        # Make sure walkable terrain
-        if self.maze[x_position][y_position] != 0:
+        # Save the keys
+        if self.maze[row][col] == 'a' and 'a' not in self.keys:
+            self.keys['a'] = (row, col)
+
+        # Use the key for the door
+        if self.maze[row][col] == 'b' and 'a' in self.keys:
+            pass
+        # Make sure its a path
+        elif self.maze[row][col] not in [0, 's', 'e']:
             return None
 
-        node_position = (x_position, y_position)
+        node_position = (row, col)
 
         # Create new child
         new_child = Node(current_node, node_position)
