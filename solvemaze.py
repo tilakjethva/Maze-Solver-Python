@@ -24,6 +24,10 @@ class Node:
     def __eq__(self, other):
         return self.position == other.position
 
+    # hash
+    def __hash__(self):
+        return hash(self.position)
+
     # Sort nodes
     def __lt__(self, other):
         return self.f < other.f
@@ -35,6 +39,9 @@ class AmazeSolver:
         You need to nd the fastest way to reach the fixed end point.
     """
 
+    START = 's'
+    END = 'e'
+
     def __init__(self, input_file):
         self.input_file = input_file
 
@@ -44,10 +51,10 @@ class AmazeSolver:
             for i, line in enumerate(f.readlines()):
                 self.maze.append([])
                 for j, pos in enumerate(line.split()):
-                    if pos == 's':  # start position
+                    if pos == self.START:  # start position
                         self.start = (i, j)
                         self.maze[i].append(pos)
-                    elif pos == 'e':  # end position
+                    elif pos == self.END:  # end position
                         self.end = (i, j)
                         self.maze[i].append(pos)
                     elif pos == '0' or pos == '1': # path and wall
@@ -55,7 +62,8 @@ class AmazeSolver:
                     else:
                         self.maze[i].append(pos)
 
-        self.keys = {}
+        self.key_positions = {}
+        self.key_nodes = {} # dict of keys and isRetrieved
 
         print(self.maze)
         print(self.start)
@@ -75,6 +83,8 @@ class AmazeSolver:
         # Add the start node
         open_queue.put(start_node, 0)
 
+        fullpath = []
+
         # Loop until you find the end
         while not open_queue.empty():
 
@@ -82,16 +92,25 @@ class AmazeSolver:
             current_node = open_queue.get()
             closed_list.append(current_node)
 
-            # Found the goal
+            # Found the end
             if current_node == end_node:
-                path = []
-                current = current_node
-                while current is not None:
-                    path.append(current.position)
-                    current = current.parent
-                return path[::-1]  # Return reversed path
+                fullpath += self.build_path(current_node)
+                return fullpath
 
-            adjacent_squares = [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+            # Found the key and its not retrieved
+            if current_node in self.key_nodes and self.key_nodes[current_node]:
+                self.key_nodes[current_node] = False
+                fullpath += self.build_path(current_node)
+
+                # Clear the lists and add the next node to visit in the queue
+                next_node = current_node.parent
+                next_node.parent = None
+                with open_queue.mutex:
+                    open_queue.queue.clear()
+                open_queue.put(next_node, 0)
+                closed_list.clear()
+
+            adjacent_squares = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
             # Loop through children
             for position in adjacent_squares:
@@ -119,6 +138,14 @@ class AmazeSolver:
                 # Add the child to the open list
                 open_queue.put(child, child.f)
 
+    def build_path(self, current_node):
+        path = []
+        current = current_node
+        while current is not None:
+            path.append(current.position)
+            current = current.parent
+        return path[::-1]  # return the  reversed path
+
     def get_child(self, current_node, next_position):
         # Get node position
         (row, col) = (current_node.position[0] + next_position[0], current_node.position[1] + next_position[1])
@@ -128,21 +155,26 @@ class AmazeSolver:
                 len(self.maze[len(self.maze) - 1]) - 1) or col < 0:
             return None
 
+        is_key_node = False
         # Save the keys
-        if self.maze[row][col] == 'a' and 'a' not in self.keys:
-            self.keys['a'] = (row, col)
-
+        if self.maze[row][col] == 'a' and 'a' not in self.key_positions:
+            self.key_positions['a'] = (row, col)
+            is_key_node = True
         # Use the key for the door
-        if self.maze[row][col] == 'b' and 'a' in self.keys:
+        elif self.maze[row][col] == 'b' and 'a' in self.key_positions:
             pass
         # Make sure its a path
-        elif self.maze[row][col] not in [0, 's', 'e']:
+        elif self.maze[row][col] not in [0, self.START, self.END]:
             return None
 
         node_position = (row, col)
 
         # Create new child
         new_child = Node(current_node, node_position)
+
+        # save the keys
+        if is_key_node:
+            self.key_nodes[new_child] = True
 
         return new_child
 
