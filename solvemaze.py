@@ -1,13 +1,16 @@
-import sys
-
-
 # Authors
 # Group 22
 # Chendursundaran KUMARAGURUBARAN
 # Jenoh JOHNSON
 # Tilak Chandrakantbhai JETHVA
-class Node():
-    """A node class for A* Pathfinding"""
+
+import sys
+
+from queue import PriorityQueue
+
+
+class Node:
+    """A node class for Maze"""
 
     def __init__(self, parent=None, position=None):
         self.parent = parent
@@ -27,6 +30,10 @@ class Node():
 
 
 class AmazeSolver:
+    """ You have to solve a maze.
+        You start from a fixed position in the maze.
+        You need to nd the fastest way to reach the fixed end point.
+    """
 
     def __init__(self, input_file):
         self.input_file = input_file
@@ -39,13 +46,12 @@ class AmazeSolver:
                 for j, pos in enumerate(line.split()):
                     if pos == 's':  # start position
                         self.start = (i, j)
-                        self.maze[i].append(pos)
+                        self.maze[i].append(0)
                     elif pos == 'e':  # end position
                         self.end = (i, j)
-                        self.maze[i].append(pos)
+                        self.maze[i].append(0)
                     else:
                         self.maze[i].append(int(pos))
-
 
         print(self.maze)
         print(self.start)
@@ -59,19 +65,19 @@ class AmazeSolver:
         end_node = Node(None, self.end)
 
         # Initialize both open and closed list
-        open_list = []
+        open_queue = PriorityQueue()
         closed_list = []
 
         # Add the start node
-        open_list.append(start_node)
+        open_queue.put(start_node, 0)
 
         # Loop until you find the end
-        while len(open_list) > 0:
+        while not open_queue.empty():
 
-            open_list.sort()
+            #open_queue.sort()
 
             # Pop current off open list, add to closed list
-            current_node = open_list.pop(0)
+            current_node = open_queue.get()
             closed_list.append(current_node)
 
             # Found the goal
@@ -94,27 +100,30 @@ class AmazeSolver:
                     continue
 
                 # Child is on the closed list
-                for closed_child in closed_list:
-                    if child == closed_child:
-                        continue
+                # for closed_child in closed_list:
+                #     if child == closed_child:
+                #         continue
+                if child in closed_list:
+                    continue
 
                 # Create the f, g, and h values
                 child.g = current_node.g + 1
-                child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
-                            (child.position[1] - end_node.position[1]) ** 2)
+                child.h = max(abs(child.position[0] - end_node.position[0]),
+                              abs(child.position[1] - end_node.position[1]))
                 child.f = child.g + child.h
 
                 # Child is already in the open list
-                for open_node in open_list:
-                    if child == open_node and child.g > open_node.g:
+                for open_node in open_queue.queue:
+                    if child == open_node and child.f > open_node.f:
                         continue
 
                 # Add the child to the open list
-                open_list.append(child)
+                open_queue.put(child, child.f)
 
     def get_child(self, current_node, next_position):
         # Get node position
-        (x_position, y_position) = (current_node.position[0] + next_position[0], current_node.position[1] + next_position[1])
+        (x_position, y_position) = (
+        current_node.position[0] + next_position[0], current_node.position[1] + next_position[1])
 
         # Make sure within range
         if x_position > (len(self.maze) - 1) or x_position < 0 or y_position > (
