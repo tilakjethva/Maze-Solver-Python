@@ -37,11 +37,15 @@ class AmazeSolver:
             for i, line in enumerate(f.readlines()):
                 self.maze.append([])
                 for j, pos in enumerate(line.split()):
-                    self.maze[i].append(pos)
                     if pos == 's':  # start position
                         self.start = (i, j)
+                        self.maze[i].append(pos)
                     elif pos == 'e':  # end position
                         self.end = (i, j)
+                        self.maze[i].append(pos)
+                    else:
+                        self.maze[i].append(int(pos))
+
 
         print(self.maze)
         print(self.start)
@@ -108,19 +112,20 @@ class AmazeSolver:
                 # Add the child to the open list
                 open_list.append(child)
 
-
     def get_child(self, current_node, next_position):
         # Get node position
-        node_position = (current_node.position[0] + next_position[0], current_node.position[1] + next_position[1])
+        (x_position, y_position) = (current_node.position[0] + next_position[0], current_node.position[1] + next_position[1])
 
         # Make sure within range
-        if node_position[0] > (len(self.maze) - 1) or node_position[0] < 0 or node_position[1] > (
-                len(self.maze[len(self.maze) - 1]) - 1) or node_position[1] < 0:
+        if x_position > (len(self.maze) - 1) or x_position < 0 or y_position > (
+                len(self.maze[len(self.maze) - 1]) - 1) or y_position < 0:
             return None
 
         # Make sure walkable terrain
-        if self.maze[node_position[0]][node_position[1]] != 0:
+        if self.maze[x_position][y_position] != 0:
             return None
+
+        node_position = (x_position, y_position)
 
         # Create new child
         new_child = Node(current_node, node_position)
