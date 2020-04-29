@@ -30,42 +30,40 @@ class Maze(pygame.sprite.Sprite):
     def __init__(self):
         self.W = 10
         self.H = 10
-        self.maze = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                     1, "e", 1, 0, 1, 0, 1, 0, 0, 1,
-                     1, 0, 1, 0, 0, 0, 1, 0, 1, 1,
-                     1, 0, 1, 0, 1, 1, 1, 0, 1, 1,
-                     1, 0, 0, 0, 1, 0, 0, 0, 0, 1,
-                     1, 0, 1, 0, 1, 0, 1, 1, 1, 1,
-                     1, 0, 1, 1, 1, 0, 1, "s", 0, 1,
-                     1, 0, 1, 0, 0, 0, 1, 1, 0, 1,
-                     1, 0, 0, 0, 1, 0, 0, 0, 0, 1,
-                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
+        self.maze = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                     [1, 's', 1, 0, 1, 0, 1, 0, 0, 1],
+                     [1, 0, 1, 0, 0, 0, 1, 0, 1, 1],
+                     [1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+                     [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                     [1, 0, 1, 0, 1, 0, 1, 1, 1, 1],
+                     [1, 0, 1, 1, 1, 0, 1, 'e', 0, 1],
+                     [1, 0, 1, 0, 0, 0, 1, 1, 0, 1],
+                     [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
     def draw(self, screen):
         block_surf = pygame.image.load(os.path.join(img_folder, "block.png")).convert()
-        bx = 0
-        by = 0
         placex = []
         placey = []
+        x = 0
+        y = 0
         for i in range(0, self.W * self.H):
-            # print("character = " + self.maze[bx + (by * self.W)])
-            if str(self.maze[bx + (by * self.W)]) == "s":
-                candy = Candy(bx, by)
+            if str(self.maze[x][y]) == "s":
+                candy = Candy(x, y)
                 all_sprites.add(candy)
-            elif str(self.maze[bx + (by * self.W)]) == "e":
+            elif str(self.maze[x][y]) == "e":
                 player = Player()
                 all_sprites.add(player)
-            elif self.maze[bx + (by * self.W)] == 1:
-                block = screen.blit(block_surf, (bx * 20, by * 20))
-                print(block)
+            elif self.maze[x][y] == 1:
+                block = screen.blit(block_surf, (y * 20, x * 20))
             else:
-                placex.append(bx * 20)
-                placey.append(by * 20)
+                placex.append(x * 20)
+                placey.append(y * 20)
 
-            bx = bx + 1
-            if bx > self.W - 1:
-                bx = 0
-                by = by + 1
+            y = y + 1
+            if y > self.H - 1:
+                y = 0
+                x = x + 1
 
 
 class Candy(pygame.sprite.Sprite):
