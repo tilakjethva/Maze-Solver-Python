@@ -15,6 +15,7 @@ class Node:
     def __init__(self, parent=None, position=None):
         self.parent = parent
         self.position = position
+        self.key = None
 
         self.g = 0
         self.h = 0
@@ -62,8 +63,8 @@ class AmazeSolver:
                     else:
                         self.maze[i].append(pos)
 
-        self.key_positions = {}
-        self.key_nodes = {} # dict of keys and isRetrieved
+        self.keys_found = {} # dict of keys and isRetrieved
+        self.door_dict = {'g':'f', 'c':'d', 'b':'a', 'h':'i'}
 
         print(self.maze)
         print(self.start)
@@ -98,8 +99,8 @@ class AmazeSolver:
                 return fullpath
 
             # Found the key and its not retrieved
-            if current_node in self.key_nodes and self.key_nodes[current_node]:
-                self.key_nodes[current_node] = False
+            if current_node.key is not None and self.keys_found[current_node.key]:
+                self.keys_found[current_node.key] = False
                 fullpath += self.build_path(current_node)
 
                 # Clear the lists and add the next node to visit in the queue
@@ -156,15 +157,17 @@ class AmazeSolver:
             return None
 
         is_key_node = False
+        elm = self.maze[row][col]
+
         # Save the keys
-        if self.maze[row][col] == 'a' and 'a' not in self.key_positions:
-            self.key_positions['a'] = (row, col)
+        if elm in self.door_dict.values() and elm not in self.keys_found:
+            self.keys_found[elm] = True
             is_key_node = True
         # Use the key for the door
-        elif self.maze[row][col] == 'b' and 'a' in self.key_positions:
+        elif elm in self.door_dict.keys() and self.door_dict[elm] in self.keys_found:
             pass
         # Make sure its a path
-        elif self.maze[row][col] not in [0, self.START, self.END]:
+        elif elm not in [0, self.START, self.END]:
             return None
 
         node_position = (row, col)
@@ -174,7 +177,7 @@ class AmazeSolver:
 
         # save the keys
         if is_key_node:
-            self.key_nodes[new_child] = True
+            new_child.key = elm
 
         return new_child
 
