@@ -64,7 +64,7 @@ class AmazeSolver:
                         self.maze[i].append(pos)
 
         self.keys_found = {} # dict of keys and isRetrieved
-        self.door_dict = {'g':'f', 'c':'d', 'b':'a', 'h':'i'}
+        self.door_dict = {'g':'f', 'c':'d', 'b':'a', 'i':'h'}
 
         print(self.maze)
         print(self.start)
