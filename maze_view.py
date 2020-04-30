@@ -193,9 +193,9 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Maze Solver Group 22")  # name of my window
 clock = pygame.time.Clock()
 
-pygame.mixer_music.load("music.mp3")
-pygame.mixer_music.set_volume(0.5)
-pygame.mixer_music.play(-1)
+# pygame.mixer_music.load("music.mp3")
+# pygame.mixer_music.set_volume(0.5)
+# pygame.mixer_music.play(-1)
 
 
 # display_surf = None
