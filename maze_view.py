@@ -1,8 +1,10 @@
 import os
+import sys
 import time
-from typing import Tuple
 
 import pygame
+
+from solvemaze import AmazeSolver
 
 height = 700
 width = 100
@@ -22,29 +24,23 @@ black = (0, 0, 0)
 game_folder = os.path.dirname(__file__)
 img_folder = game_folder + "/img/"
 
+# solve the maze
+input_file = ""
+if len(sys.argv) == 1:
+    print("Please provide an input maze file as argument!")
+    quit()
+else:
+    input_file = sys.argv[1]
+
+solver = AmazeSolver(input_file)
+mazepath = solver.astar_solve()
 
 class Background(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
         global maze
-        maze = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 's', 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-                [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1],
-                [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1],
-                [1, 0, 0, 1, 0, 0, 0, 'i', 0, 1, 1, 0, 1, -1, 1, 'c', 1, 1],
-                [1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, -1, 2, 1, 0, 'e', 1],
-                [1, 0, 0, 1, 1, 0, 1, 0, 'c', 1, 0, 1, -1, 1, 1, 1, 1, 1],
-                [1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                [1, 0, 0, 0, 1, 0, 'b', 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1],
-                [1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-                [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1],
-                [1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 'd', 1],
-                [1, 0, 1, 0, -1, 1, 0, 1, 0, 1, 1, 1, 0, 0, -1, 1, -1, 1],
-                [1, 0, 0, 1, 0, -1, 'f', 0, 0, 1, 0, 0, 0, 1, 1, 3, -1, 1],
-                [1, 1, 0, 1, 1, 1, -1, 1, -1, 1, 0, 1, 'g', 1, 1, -1, 1, 1],
-                [1, 'a', 0, 1, -1, -1, -1, 4, -1, -1, -1, 'h', 0, 0, 0, -1, 0, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+        maze = solver.get_maze_grid()
 
         global totalColumn
         totalColumn = len(maze[0])
@@ -226,36 +222,36 @@ Maze(screen)
 all_sprites.draw(screen)
 pygame.display.flip()
 
-arr = [(1, 1), (2, 1), (3, 1), (4, 1), (4, 2), (5, 2), (6, 2), (6, 1), (7, 1), (8, 1), (8, 2), (9, 2), (10, 2), (10, 1), (11, 1), (12, 1), (13, 1), (13, 2), (14, 2), (15, 2), (15, 1), (15, 2), (14, 2), (13, 2), (13, 1), (12, 1), (11, 1), (10, 1), (10, 2), (9, 2), (8, 2), (8, 3), (7, 3), (7, 4), (7, 5), (8, 5), (8, 6), (8, 7), (8, 8), (7, 8), (6, 8), (7, 8), (8, 8), (8, 7), (8, 6), (8, 5), (9, 5), (10, 5), (10, 4), (11, 4), (12, 4), (13, 4), (13, 5), (13, 6), (13, 7), (13, 8), (12, 8), (11, 8), (11, 9), (11, 10), (11, 11), (10, 11), (9, 11), (9, 12), (9, 13), (10, 13), (10, 14), (11, 14), (12, 14), (12, 13), (12, 12), (13, 12), (13, 11), (13, 10), (14, 10), (15, 10), (15, 11), (15, 10), (14, 10), (13, 10), (13, 11), (13, 12), (12, 12), (12, 13), (12, 14), (11, 14), (10, 14), (10, 13), (9, 13), (9, 12), (9, 11), (10, 11), (11, 11), (11, 10), (11, 9), (11, 8), (12, 8), (13, 8), (13, 7), (13, 6), (13, 5), (13, 4), (12, 4), (11, 4), (10, 4), (10, 5), (9, 5), (8, 5), (7, 5), (6, 5), (5, 5), (4, 5), (4, 6), (4, 7), (3, 7), (2, 7), (1, 7), (1, 8), (1, 9), (2, 9), (3, 9), (3, 10), (3, 11), (4, 11), (5, 11), (5, 12), (6, 12), (7, 12), (7, 13), (7, 14), (7, 15), (8, 15), (9, 15), (9, 16), (10, 16), (11, 16), (12, 16), (13, 16), (13, 15), (14, 15), (15, 15), (15, 14), (15, 13), (14, 13), (15, 13), (15, 14), (15, 15), (14, 15), (13, 15), (13, 16), (12, 16), (11, 16), (10, 16), (9, 16), (9, 15), (8, 15), (7, 15), (7, 14), (7, 13), (7, 12), (6, 12), (5, 12), (5, 11), (4, 11), (3, 11), (3, 10), (3, 9), (2, 9), (1, 9), (1, 10), (1, 11), (1, 12), (2, 12), (2, 13), (2, 14), (1, 14), (1, 15), (1, 16), (2, 16), (3, 16), (3, 15), (4, 15), (5, 15), (5, 16)]
-
 all_sprites.remove(player)
 pygame.display.update()
 all_sprites.draw(screen)
 
-for i in arr:
-    x, y = i
+def run_player():
+    global player
+    for i in mazepath:
+        x, y = i
 
-    if i != arr[len(arr)-1]:
-        path = Path(x, y)
-        all_sprites.add(path)
+        if i != mazepath[len(mazepath) - 1]:
+            path = Path(x, y)
+            all_sprites.add(path)
+            pygame.display.update()
+            all_sprites.draw(screen)
+
+        all_sprites.remove(player)
+        # print(i)
+        player = Player(x, y)
+        # path = Path(x, y)
+        all_sprites.add(player)
         pygame.display.update()
         all_sprites.draw(screen)
+        time.sleep(.1)
 
-    all_sprites.remove(player)
-    # print(i)
-    player = Player(x, y)
-    # path = Path(x, y)
-    all_sprites.add(player)
-    pygame.display.update()
-    all_sprites.draw(screen)
-    time.sleep(.1)
-
-    if i == arr[len(arr)-1]:
-        all_sprites.remove(candy)
-        pygame.display.update()
-        all_sprites.draw(screen)
-        pygame.mixer_music.stop()
-        pygame.event.post(pygame.quit())
+        if i == mazepath[len(mazepath) - 1]:
+            all_sprites.remove(candy)
+            pygame.display.update()
+            all_sprites.draw(screen)
+            pygame.mixer_music.stop()
+            pygame.event.post(pygame.quit())
 
 
 # ##### pygame loop #######
@@ -268,3 +264,5 @@ while running:
         # check for closing the window
         if event.type == pygame.QUIT:
             running = False
+
+        run_player()

@@ -73,11 +73,6 @@ class AmazeSolver:
 
         self.setup_ghosts()
 
-        print(self.ghost_positions)
-        pprint(self.maze)
-        print(self.start)
-        print(self.end)
-
     def get_maze_grid(self):
         return self.maze
 
@@ -282,6 +277,7 @@ class AmazeSolver:
 def main():
     if len(sys.argv) == 1:
         print("Please provide an input maze file as argument!")
+        return
     else:
         input_file = sys.argv[1]
     solver = AmazeSolver(input_file)
