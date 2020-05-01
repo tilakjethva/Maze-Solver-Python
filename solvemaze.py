@@ -71,7 +71,7 @@ class AmazeSolver:
         self.keys_found = {}  # dict of keys and isRetrieved
         self.door_dict = {'g': 'f', 'c': 'd', 'b': 'a', 'i': 'h'}
 
-        self.get_ghosts()
+        self.setup_ghosts()
 
         print(self.ghost_positions)
         pprint(self.maze)
@@ -81,10 +81,9 @@ class AmazeSolver:
     def get_maze_grid(self):
         return self.maze
 
-    def get_ghosts(self):
+    def setup_ghosts(self):
+        """set the cell in the ghosts range to -1"""
 
-        #adjacent_squares = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-        #corner_squares = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
         neighbours = [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]
 
         for ghost_pos in self.ghost_positions:
@@ -109,6 +108,20 @@ class AmazeSolver:
                     if self.maze[cell[0]][cell[1]] == 0:
                         self.maze[cell[0]][cell[1]] = -1
 
+                    #Fix for corner squares in line of sight
+                    if cell[0] != ghost_pos[0] and cell[1] != ghost_pos[1] and self.maze[cell[0]][cell[1]] == -1:
+                        if cell[0] - ghost_pos[0] > 0:
+                            dy = -1
+                        else:
+                            dy = 1
+
+                        if cell[1] - ghost_pos[1] > 0:
+                            dx = -1
+                        else:
+                            dx = 1
+
+                        if self.maze[cell[0]+ dy][cell[1]] == 1 and self.maze[cell[0]][cell[1]+ dx] == 1:
+                            self.maze[cell[0]][cell[1]] = 0
 
     def line_of_sight(self, y1, x1, y2, x2):
         """Returns a list of tuples as a line of sight from (y1,x1) to (y2,x2)"""
