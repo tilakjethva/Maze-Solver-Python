@@ -78,6 +78,9 @@ class AmazeSolver:
         print(self.start)
         print(self.end)
 
+    def get_maze_grid(self):
+        return self.maze
+
     def get_ghosts(self):
 
         #adjacent_squares = [(0, -1), (0, 1), (-1, 0), (1, 0)]
