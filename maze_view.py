@@ -56,7 +56,7 @@ class Background(pygame.sprite.Sprite):
         pixel = int(height / totalRow)
 
         global width
-        width = pixel * totalRow
+        width = pixel * totalColumn
 
         # self.image = pygame.Surface([width, height])
         # self.image = pygame.image.load(img_folder + "background.png")
@@ -110,12 +110,12 @@ class Maze(pygame.sprite.Sprite):
 
             if isRowIncreased == 1:
                 row = row + 1
-                if row >= totalColumn:
+                if row >= totalRow:
                     row = 0
                     column = column + 1 if column < totalColumn-1 else 0
             else:
                 column = column + 1
-                if column >= totalRow:
+                if column >= totalColumn:
                     column = 0
                     row = row + 1 if row < totalRow-1 else 0
 
