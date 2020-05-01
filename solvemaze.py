@@ -5,6 +5,7 @@
 # Tilak Chandrakantbhai JETHVA
 
 import sys
+from pprint import pprint
 
 from queue import PriorityQueue
 
@@ -45,6 +46,7 @@ class AmazeSolver:
 
     def __init__(self, input_file):
         self.input_file = input_file
+        self.ghost_positions = []
 
         # Read the input_file into grid
         with open(input_file, "r") as f:
@@ -58,17 +60,96 @@ class AmazeSolver:
                     elif pos == self.END:  # end position
                         self.end = (i, j)
                         self.maze[i].append(pos)
-                    elif pos == '0' or pos == '1': # path and wall
+                    elif pos == '0' or pos == '1':  # path and wall
+                        self.maze[i].append(int(pos))
+                    elif pos.isdigit() and int(pos) >= 2:  # ghosts
+                        self.ghost_positions.append((i, j))
                         self.maze[i].append(int(pos))
                     else:
                         self.maze[i].append(pos)
 
-        self.keys_found = {} # dict of keys and isRetrieved
-        self.door_dict = {'g':'f', 'c':'d', 'b':'a', 'i':'h'}
+        self.keys_found = {}  # dict of keys and isRetrieved
+        self.door_dict = {'g': 'f', 'c': 'd', 'b': 'a', 'i': 'h'}
 
-        print(self.maze)
+        self.get_ghosts()
+
+        print(self.ghost_positions)
+        pprint(self.maze)
         print(self.start)
         print(self.end)
+
+    def get_ghosts(self):
+
+        #adjacent_squares = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        #corner_squares = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        neighbours = [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+
+        for ghost_pos in self.ghost_positions:
+            g_range = self.maze[ghost_pos[0]][ghost_pos[1]] -1
+            #find the outer range of ghost
+            outer_range = [(pos[0] * g_range, pos[1] * g_range) for pos in neighbours]
+
+            for range in outer_range:
+                (row, col) = (ghost_pos[0] + range[0], ghost_pos[1] + range[1])
+
+                #find the line of sight
+                cells_in_range = self.line_of_sight(ghost_pos[0], ghost_pos[1], row, col)
+
+                for cell in cells_in_range:
+                    # Make sure its within range
+                    if row > (len(self.maze) - 1) or row < 0 or col > (
+                        len(self.maze[len(self.maze) - 1]) - 1) or col < 0:
+                        break
+                    if self.maze[cell[0]][cell[1]] == 1:
+                        break
+
+                    if self.maze[cell[0]][cell[1]] == 0:
+                        self.maze[cell[0]][cell[1]] = -1
+
+
+    def line_of_sight(self, y1, x1, y2, x2):
+        """Returns a list of tuples as a line of sight from (y1,x1) to (y2,x2)"""
+        swap = 0
+        positions = []
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        x, y = x1, y1
+
+        if x1 < x2:
+            sx = 1
+        else:
+            sx = -1
+
+        if y1 < y2:
+            sy = 1
+        else:
+            sy = -1
+
+        if dy > dx:
+            swap = 1
+            x,y = y,x
+            dx,dy = dy,dx
+            sx,sy = sy,sx
+
+        slope = (2 * dy) - dx
+
+        for i in range(0, dx):
+
+            if swap:
+                positions.append((x,y))
+            else:
+                positions.append((y,x))
+
+            while slope >= 0:
+                y += sy
+                slope = slope - 2*dx
+
+            slope = slope + 2*dy
+            x += sx
+
+        positions.append((y2,x2))
+        return positions
+
 
     def astar_solve(self):
         """Returns a list of tuples as a path from the given start to the given end in the given maze"""
@@ -157,17 +238,17 @@ class AmazeSolver:
             return None
 
         is_key_node = False
-        elm = self.maze[row][col]
+        cell = self.maze[row][col]
 
         # Save the keys
-        if elm in self.door_dict.values() and elm not in self.keys_found:
-            self.keys_found[elm] = True
+        if cell in self.door_dict.values() and cell not in self.keys_found:
+            self.keys_found[cell] = True
             is_key_node = True
         # Use the key for the door
-        elif elm in self.door_dict.keys() and self.door_dict[elm] in self.keys_found:
+        elif cell in self.door_dict.keys() and self.door_dict[cell] in self.keys_found:
             pass
         # Make sure its a path
-        elif elm not in [0, self.START, self.END]:
+        elif cell not in [0, self.START, self.END]:
             return None
 
         node_position = (row, col)
@@ -177,7 +258,7 @@ class AmazeSolver:
 
         # save the keys
         if is_key_node:
-            new_child.key = elm
+            new_child.key = cell
 
         return new_child
 
