@@ -109,7 +109,6 @@ class Path(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
         self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "path.png")).convert()),
                                             (pixel, pixel))
-        # self.image = pygame.image.load(os.path.join(img_folder, "reward.png")).convert()  # look of the sprite
         self.rect = self.image.get_rect()  # kind of border around it
         self.rect.top = pixel * row
         self.rect.left = pixel * column
@@ -120,7 +119,6 @@ class Ghost(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
         self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "ghost.png")).convert()),
                                             (pixel, pixel))
-        # self.image = pygame.image.load(os.path.join(img_folder, "reward.png")).convert()  # look of the sprite
         self.rect = self.image.get_rect()  # kind of border around it
         self.rect.top = pixel * row
         self.rect.left = pixel * column
@@ -131,7 +129,6 @@ class GhostPath(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
         self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "pink_cell.png")).convert()),
                                             (pixel, pixel))
-        # self.image = pygame.image.load(os.path.join(img_folder, "reward.png")).convert()  # look of the sprite
         self.rect = self.image.get_rect()  # kind of border around it
         self.rect.top = pixel * row
         self.rect.left = pixel * column
@@ -142,7 +139,6 @@ class Candy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
         self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "reward.png")).convert()),
                                             (pixel, pixel))
-        # self.image = pygame.image.load(os.path.join(img_folder, "reward.png")).convert()  # look of the sprite
         self.rect = self.image.get_rect()  # kind of border around it
         self.rect.top = pixel * row
         self.rect.left = pixel * column
@@ -153,7 +149,6 @@ class Key(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
         self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, alpha + ".png")).convert()),
                                             (pixel, pixel))
-        # self.image = pygame.image.load(os.path.join(img_folder, "reward.png")).convert()  # look of the sprite
         self.rect = self.image.get_rect()  # kind of border around it
         self.rect.top = pixel * row
         self.rect.left = pixel * column
@@ -164,7 +159,6 @@ class Door(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
         self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, alpha + ".png")).convert()),
                                             (pixel, pixel))
-        # self.image = pygame.image.load(os.path.join(img_folder, "reward.png")).convert()  # look of the sprite
         self.rect = self.image.get_rect()  # kind of border around it
         self.rect.top = pixel * row
         self.rect.left = pixel * column
@@ -173,7 +167,6 @@ class Door(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self, row, column):  # sprite for a player
         pygame.sprite.Sprite.__init__(self)  # for sprite working
-        # self.image = pygame.image.load(os.path.join(img_folder, "pacman.png")).convert()  # look of the sprite
         self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "pacman.png")).convert()),
                                             (pixel, pixel))
         self.image.set_colorkey(white)  # to delete black things around rect img
