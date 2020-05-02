@@ -7,11 +7,7 @@ import pygame
 from solvemaze import AmazeSolver
 
 height = 700
-width = 100
 pixel = 10
-totalColumn = 1
-totalRow = 1
-maze = []
 FPS = 10
 player = ""
 candy = ""
@@ -24,46 +20,33 @@ black = (0, 0, 0)
 game_folder = os.path.dirname(__file__)
 img_folder = game_folder + "/img/"
 
-# solve the maze
-input_file = ""
-if len(sys.argv) == 1:
-    print("Please provide an input maze file as argument!")
-    quit()
-else:
-    input_file = sys.argv[1]
 
-solver = AmazeSolver(input_file)
-mazepath = solver.astar_solve()
+def solve_maze():
+    # solve the maze
+    input_file = ""
+    if len(sys.argv) == 1:
+        print("Please provide an input maze file as argument!")
+        quit()
+    else:
+        input_file = sys.argv[1]
+    solver = AmazeSolver(input_file)
+    mazepath = solver.astar_solve()
+    return solver.get_maze_grid(), mazepath
 
-class Background(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
 
-        global maze
-        maze = solver.get_maze_grid()
+class Maze(pygame.sprite.Sprite):
+    def __init__(self, maze):
 
-        global totalColumn
         totalColumn = len(maze[0])
 
-        global totalRow
         totalRow = len(maze)
 
         global pixel
         pixel = int(height / totalRow)
 
-        global width
         width = pixel * totalColumn
 
-        # self.image = pygame.Surface([width, height])
-        # self.image = pygame.image.load(img_folder + "background.png")
-        # self.image.fill(white)
-        # self.rect = self.image.get_rect()
-        # self.rect.left = 0
-        # self.rect.top = 0
-
-
-class Maze(pygame.sprite.Sprite):
-    def __init__(self, screen):
+        self.screen = pygame.display.set_mode((width, height))
 
         block_surf = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "block.png")).convert()),
                                             (pixel, pixel))
@@ -87,17 +70,19 @@ class Maze(pygame.sprite.Sprite):
                 global player
                 player = Player(row, column)
                 all_sprites.add(player)
-            elif str(maze[row][column]) == "a" or str(maze[row][column]) == "d" or str(maze[row][column]) == "f" or str(maze[row][column]) == "h":
+            elif str(maze[row][column]) == "a" or str(maze[row][column]) == "d" or str(maze[row][column]) == "f" or str(
+                    maze[row][column]) == "h":
                 key = Key(row, column, maze[row][column])
                 all_sprites.add(key)
-            elif str(maze[row][column]) == "b" or str(maze[row][column]) == "i" or str(maze[row][column]) == "g" or str(maze[row][column]) == "c":
+            elif str(maze[row][column]) == "b" or str(maze[row][column]) == "i" or str(maze[row][column]) == "g" or str(
+                    maze[row][column]) == "c":
                 door = Door(row, column, maze[row][column])
                 all_sprites.add(door)
             elif maze[row][column] == -1:
                 paths = GhostPath(row, column)
                 all_sprites.add(paths)
             elif maze[row][column] == 1:
-                block = screen.blit(block_surf, (column * pixel, row * pixel))
+                block = self.screen.blit(block_surf, (column * pixel, row * pixel))
             else:
                 ghost = Ghost(row, column)
                 all_sprites.add(ghost)
@@ -108,12 +93,15 @@ class Maze(pygame.sprite.Sprite):
                 row = row + 1
                 if row >= totalRow:
                     row = 0
-                    column = column + 1 if column < totalColumn-1 else 0
+                    column = column + 1 if column < totalColumn - 1 else 0
             else:
                 column = column + 1
                 if column >= totalColumn:
                     column = 0
-                    row = row + 1 if row < totalRow-1 else 0
+                    row = row + 1 if row < totalRow - 1 else 0
+
+    def get_screen(self):
+        return self.screen
 
 
 class Path(pygame.sprite.Sprite):
@@ -163,7 +151,7 @@ class Candy(pygame.sprite.Sprite):
 class Key(pygame.sprite.Sprite):
     def __init__(self, row, column, alpha):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, alpha+".png")).convert()),
+        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, alpha + ".png")).convert()),
                                             (pixel, pixel))
         # self.image = pygame.image.load(os.path.join(img_folder, "reward.png")).convert()  # look of the sprite
         self.rect = self.image.get_rect()  # kind of border around it
@@ -174,7 +162,7 @@ class Key(pygame.sprite.Sprite):
 class Door(pygame.sprite.Sprite):
     def __init__(self, row, column, alpha):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, alpha+".png")).convert()),
+        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, alpha + ".png")).convert()),
                                             (pixel, pixel))
         # self.image = pygame.image.load(os.path.join(img_folder, "reward.png")).convert()  # look of the sprite
         self.rect = self.image.get_rect()  # kind of border around it
@@ -197,57 +185,55 @@ class Player(pygame.sprite.Sprite):
 # initialize pygame and create window
 pygame.init()  # start pygame
 
-BackGround = Background()
-screen = pygame.display.set_mode((width, height))
+solver = solve_maze()
+mazegrid = solver[0]
+mazepath = solver[1]
+
+all_sprites = pygame.sprite.Group()
+maze = Maze(mazegrid)
+screen = maze.get_screen()
+
 pygame.display.set_caption("Maze Solver Group 22")  # name of my window
 clock = pygame.time.Clock()
 
-# pygame.mixer_music.load("music.mp3")
-# pygame.mixer_music.set_volume(0.5)
-# pygame.mixer_music.play(-1)
-
-
-# display_surf = None
 image_surf = None
 
-all_sprites = pygame.sprite.Group()
-
-Maze(screen)
 all_sprites.draw(screen)
 
 all_sprites.remove(player)
 pygame.display.update()
 all_sprites.draw(screen)
 
-
+count = 0
 # ##### pygame loop #######
 running = True
 while running:
     # keep running at the at the right speed
     clock.tick(FPS)
 
-    for i in mazepath:
-        x, y = i
+    pos = mazepath[count]
+    x, y = pos
 
-        if i != mazepath[len(mazepath) - 1]:
-            path = Path(x, y)
-            all_sprites.add(path)
+    if pos != mazepath[len(mazepath) - 1]:
+        path = Path(x, y)
+        all_sprites.add(path)
 
-        all_sprites.remove(player)
-        player = Player(x, y)
-        all_sprites.add(player)
+    all_sprites.remove(player)
+    player = Player(x, y)
+    all_sprites.add(player)
+    pygame.display.update()
+    all_sprites.draw(screen)
+    time.sleep(.2)
+
+    if pos == mazepath[len(mazepath) - 1]:
+        all_sprites.remove(candy)
         pygame.display.update()
         all_sprites.draw(screen)
-        time.sleep(.2)
+        running = False
 
-        if i == mazepath[len(mazepath) - 1]:
-            all_sprites.remove(candy)
-            pygame.display.update()
-            all_sprites.draw(screen)
+    for event in pygame.event.get():
+        # check for closing the window
+        if event.type == pygame.QUIT:
             running = False
 
-
-pygame.display.quit()
-pygame.quit()
-exit()
-
+    count += 1
