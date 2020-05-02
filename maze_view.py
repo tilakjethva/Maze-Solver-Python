@@ -12,7 +12,7 @@ pixel = 10
 totalColumn = 1
 totalRow = 1
 maze = []
-FPS = 30
+FPS = 10
 player = ""
 candy = ""
 
@@ -115,12 +115,6 @@ class Maze(pygame.sprite.Sprite):
                     column = 0
                     row = row + 1 if row < totalRow-1 else 0
 
-        # ghost_paths = [(4, 12), (4, 15), (5, 13), (5, 15), (6, 14), (6, 15), (8, 14), (8, 15), (9, 15), (10, 15)]
-        # for i in ghost_paths:
-        #     x, y = i
-        #     g_path = GhostPath(y, x)
-        #     all_sprites.add(g_path)
-
 
 class Path(pygame.sprite.Sprite):
     def __init__(self, row, column):
@@ -220,38 +214,10 @@ all_sprites = pygame.sprite.Group()
 
 Maze(screen)
 all_sprites.draw(screen)
-pygame.display.flip()
 
 all_sprites.remove(player)
 pygame.display.update()
 all_sprites.draw(screen)
-
-def run_player():
-    global player
-    for i in mazepath:
-        x, y = i
-
-        if i != mazepath[len(mazepath) - 1]:
-            path = Path(x, y)
-            all_sprites.add(path)
-            pygame.display.update()
-            all_sprites.draw(screen)
-
-        all_sprites.remove(player)
-        # print(i)
-        player = Player(x, y)
-        # path = Path(x, y)
-        all_sprites.add(player)
-        pygame.display.update()
-        all_sprites.draw(screen)
-        time.sleep(.1)
-
-        if i == mazepath[len(mazepath) - 1]:
-            all_sprites.remove(candy)
-            pygame.display.update()
-            all_sprites.draw(screen)
-            pygame.mixer_music.stop()
-            pygame.event.post(pygame.quit())
 
 
 # ##### pygame loop #######
@@ -259,10 +225,29 @@ running = True
 while running:
     # keep running at the at the right speed
     clock.tick(FPS)
-    # process input (events)
-    for event in pygame.event.get():
-        # check for closing the window
-        if event.type == pygame.QUIT:
+
+    for i in mazepath:
+        x, y = i
+
+        if i != mazepath[len(mazepath) - 1]:
+            path = Path(x, y)
+            all_sprites.add(path)
+
+        all_sprites.remove(player)
+        player = Player(x, y)
+        all_sprites.add(player)
+        pygame.display.update()
+        all_sprites.draw(screen)
+        time.sleep(.2)
+
+        if i == mazepath[len(mazepath) - 1]:
+            all_sprites.remove(candy)
+            pygame.display.update()
+            all_sprites.draw(screen)
             running = False
 
-        run_player()
+
+pygame.display.quit()
+pygame.quit()
+exit()
+
