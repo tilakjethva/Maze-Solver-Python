@@ -48,8 +48,6 @@ class Maze(pygame.sprite.Sprite):
 
         self.screen = pygame.display.set_mode((width, height))
 
-        block_surf = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "block.png")).convert()),
-                                            (pixel, pixel))
         placex = []
         placey = []
 
@@ -58,34 +56,23 @@ class Maze(pygame.sprite.Sprite):
         row = 0
         column = 0
         for i in range(0, totalColumn * totalRow):
-            # print((row, column))
             if maze[row][column] == 0:
-                path = Path(row, column)
-                all_sprites.add(path)
-            elif str(maze[row][column]) == "e":
-                global candy
-                candy = Candy(row, column)
-                all_sprites.add(candy)
-            elif str(maze[row][column]) == "s":
-                global player
-                player = Player(row, column)
-                all_sprites.add(player)
+                all_sprites.add(Draw(row, column, "path"))
+            elif str(maze[row][column]) == "e" or str(maze[row][column]) == "s":
+                all_sprites.add(Draw(row, column, str(maze[row][column])))
             elif str(maze[row][column]) == "a" or str(maze[row][column]) == "d" or str(maze[row][column]) == "f" or str(
-                    maze[row][column]) == "h":
-                key = Key(row, column, maze[row][column])
-                all_sprites.add(key)
-            elif str(maze[row][column]) == "b" or str(maze[row][column]) == "i" or str(maze[row][column]) == "g" or str(
+                    maze[row][column]) == "h" or str(maze[row][column]) == "b" or str(maze[row][column]) == "i" or str(maze[row][column]) == "g" or str(
                     maze[row][column]) == "c":
-                door = Door(row, column, maze[row][column])
-                all_sprites.add(door)
+                all_sprites.add(Draw(row, column, maze[row][column]))
             elif maze[row][column] == -1:
-                paths = GhostPath(row, column)
-                all_sprites.add(paths)
+                all_sprites.add(Draw(row, column, "ghost_path"))
             elif maze[row][column] == 1:
+                block_surf = pygame.transform.scale(
+                    (pygame.image.load(os.path.join(img_folder, "block.png")).convert()),
+                    (pixel, pixel))
                 block = self.screen.blit(block_surf, (column * pixel, row * pixel))
             else:
-                ghost = Ghost(row, column)
-                all_sprites.add(ghost)
+                all_sprites.add(Draw(row, column, "ghost"))
                 placex.append(row * pixel)
                 placey.append(column * pixel)
 
@@ -104,97 +91,30 @@ class Maze(pygame.sprite.Sprite):
         return self.screen
 
 
-class Path(pygame.sprite.Sprite):
-    def __init__(self, row, column):
+class Draw(pygame.sprite.Sprite):
+    def __init__(self, row, column, identifier):
         pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "path.png")).convert()),
+
+        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, identifier+".png")).convert()),
                                             (pixel, pixel))
         self.rect = self.image.get_rect()  # kind of border around it
         self.rect.top = pixel * row
         self.rect.left = pixel * column
-
-
-class Ghost(pygame.sprite.Sprite):
-    def __init__(self, row, column):
-        pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "ghost.png")).convert()),
-                                            (pixel, pixel))
-        self.rect = self.image.get_rect()  # kind of border around it
-        self.rect.top = pixel * row
-        self.rect.left = pixel * column
-
-
-class GhostPath(pygame.sprite.Sprite):
-    def __init__(self, row, column):
-        pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "pink_cell.png")).convert()),
-                                            (pixel, pixel))
-        self.rect = self.image.get_rect()  # kind of border around it
-        self.rect.top = pixel * row
-        self.rect.left = pixel * column
-
-
-class Candy(pygame.sprite.Sprite):
-    def __init__(self, row, column):
-        pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "reward.png")).convert()),
-                                            (pixel, pixel))
-        self.rect = self.image.get_rect()  # kind of border around it
-        self.rect.top = pixel * row
-        self.rect.left = pixel * column
-
-
-class Key(pygame.sprite.Sprite):
-    def __init__(self, row, column, alpha):
-        pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, alpha + ".png")).convert()),
-                                            (pixel, pixel))
-        self.rect = self.image.get_rect()  # kind of border around it
-        self.rect.top = pixel * row
-        self.rect.left = pixel * column
-
-
-class Door(pygame.sprite.Sprite):
-    def __init__(self, row, column, alpha):
-        pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, alpha + ".png")).convert()),
-                                            (pixel, pixel))
-        self.rect = self.image.get_rect()  # kind of border around it
-        self.rect.top = pixel * row
-        self.rect.left = pixel * column
-
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self, row, column):  # sprite for a player
-        pygame.sprite.Sprite.__init__(self)  # for sprite working
-        self.image = pygame.transform.scale((pygame.image.load(os.path.join(img_folder, "pacman.png")).convert()),
-                                            (pixel, pixel))
-        self.image.set_colorkey(white)  # to delete black things around rect img
-        self.rect = self.image.get_rect()  # kind of border around it
-        self.rect.top = row * pixel
-        self.rect.left = column * pixel
 
 
 # initialize pygame and create window
 pygame.init()  # start pygame
 
 solver = solve_maze()
-mazegrid = solver[0]
 mazepath = solver[1]
 
 all_sprites = pygame.sprite.Group()
-maze = Maze(mazegrid)
+maze = Maze(solver[0])
 screen = maze.get_screen()
 
 pygame.display.set_caption("Maze Solver Group 22")  # name of my window
 clock = pygame.time.Clock()
 
-image_surf = None
-
-all_sprites.draw(screen)
-
-all_sprites.remove(player)
-pygame.display.update()
 all_sprites.draw(screen)
 
 count = 0
@@ -208,15 +128,14 @@ while running:
     x, y = pos
 
     if pos != mazepath[len(mazepath) - 1]:
-        path = Path(x, y)
-        all_sprites.add(path)
+        all_sprites.add(Draw(x, y, "path"))
 
     all_sprites.remove(player)
-    player = Player(x, y)
+    player = Draw(x, y, "s")
     all_sprites.add(player)
     pygame.display.update()
     all_sprites.draw(screen)
-    time.sleep(.2)
+    time.sleep(.05)
 
     if pos == mazepath[len(mazepath) - 1]:
         all_sprites.remove(candy)
